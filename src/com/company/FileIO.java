@@ -5,36 +5,31 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import javax.swing.JOptionPane;
 
 
 
 public class FileIO {
 
-    public FileIO () {
-
-    }
+    public FileIO () {}
 
 
-    public String ReadFile(String fileName, String filePath) {
-
-
-        // Build filename / path
-        String path = filePath + fileName;
+    public String ReadFile(String filePath) {
 
 
         String data = "";
         byte[] bytes;
 
 
-
-        // Perform File Open / Read (new Java 8)
+        // Perform File Open / Read (new Java 8 style)
         try {
-
-            bytes = Files.readAllBytes(Paths.get(path));
+            bytes = Files.readAllBytes(Paths.get(filePath));
             data = new String(bytes, "UTF-8");
 
 
         } catch (IOException ioe) {
+
+            JOptionPane.showMessageDialog(null, "In Catch Block");
 
             // TODO: Error saving file message box
 
@@ -43,27 +38,20 @@ public class FileIO {
     }
 
 
-    public void WriteFile(String fileName, String filePath, String fileData) {
-
-        int noerrors = -1;
-
-        // Build filename / path
-        String path = filePath + fileName;
+    public void WriteFile(String filePath, String fileData) {
 
         // Put string into byte array
         byte[] data = fileData.getBytes();
 
 
-        // Perform Save to file
+        // Perform File Save (new Java 8 style)
         try {
 
-            Files.write(Paths.get(path), data);
+            Files.write(Paths.get(filePath), data);
 
         } catch (IOException ioe) {
 
-            // TODO: Error saving file message box
-        } finally {
-
+            JOptionPane.showMessageDialog(null, "Error Writing file");
         }
 
     }

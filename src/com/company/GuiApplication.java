@@ -4,8 +4,9 @@ import javax.swing.*;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
-public class GuiApplication {
+public class GuiApplication implements ActionListener{
 
     /**
      * Title of the text editor
@@ -17,6 +18,8 @@ public class GuiApplication {
      * Main application frame
      */
     private JFrame app;
+
+    private JTextPane editor;
 
 
     /**
@@ -42,7 +45,7 @@ public class GuiApplication {
         app = new JFrame(APP_NAME);
 
         // Editor window
-        JTextPane editor = new JTextPane();
+        editor = new JTextPane();
         editor.setContentType("text/plain");
         editor.setDocument(new DefaultStyledDocument());
 
@@ -66,9 +69,21 @@ public class GuiApplication {
 
         editor.setText("This is a test of the print function");
 
-        printDialog(editor);
+//      // TODO: Listener for Print
+//      printDialog(editor);
 
-        saveDialog(app, editor);
+        // TODO: Listener for Open
+//        String k = openDialog(app);
+//        if (k != "") {
+//            editor.setText(k);
+//        }
+
+        // TODO: Listener for Save
+//        saveDialog(app, editor);
+
+        // TODO: Listener for About
+//        aboutDialog(app);
+
     }
 
 
@@ -128,30 +143,35 @@ public class GuiApplication {
         //        mnuOpen = new JMenuItem("Open", KeyEvent.VK_O);
         mnuOpen = new JMenuItem("Open", KeyEvent.VK_O);
         mnuOpen.getAccessibleContext().setAccessibleDescription("Open a new file");
+        mnuOpen.addActionListener(this);
         fileMenu.add(mnuOpen);
 
 
         // Close Menu Item
-        mnuClose = new JMenuItem("Close", KeyEvent.VK_W);
-        mnuClose.getAccessibleContext().setAccessibleDescription("Close the file");
-        fileMenu.add(mnuClose);
+//        mnuClose = new JMenuItem("Close", KeyEvent.VK_W);
+//        mnuClose.getAccessibleContext().setAccessibleDescription("Close the file");
+//        mnuClose.addActionListener(this);
+//        fileMenu.add(mnuClose);
 
 
         // Save Menu Item
         mnuSave = new JMenuItem("Save", KeyEvent.VK_S);
         mnuSave.getAccessibleContext().setAccessibleDescription("Save file");
+        mnuSave.addActionListener(this);
         fileMenu.add(mnuSave);
 
 
         // Print Menu Item
         mnuPrint = new JMenuItem("Print", KeyEvent.VK_P);
         mnuPrint.getAccessibleContext().setAccessibleDescription("Print");
+        mnuPrint.addActionListener(this);
         fileMenu.add(mnuPrint);
 
 
         // Quit Menu Item
         mnuExit = new JMenuItem("Quit", KeyEvent.VK_Q);
         mnuExit.getAccessibleContext().setAccessibleDescription("Quit");
+        mnuExit.addActionListener(this);
         fileMenu.add(mnuExit);
 
 
@@ -176,24 +196,28 @@ public class GuiApplication {
         // Search Menu Item
         mnuSearch = new JMenuItem("Search / Replace", KeyEvent.VK_F);
         mnuSearch.getAccessibleContext().setAccessibleDescription("Search / Replace");
+        mnuSearch.addActionListener(this);
         editMenu.add(mnuSearch);
 
 
         // Show / Hide Symbols
         mnuShowSymbols = new JMenuItem("Show/Hide Symbols", KeyEvent.VK_G);
         mnuShowSymbols.getAccessibleContext().setAccessibleDescription("Show/Hide Symbols");
+        mnuShowSymbols.addActionListener(this);
         viewMenu.add(mnuShowSymbols);
 
 
         // Help Menu Item
         mnuHelp = new JMenuItem("Help", KeyEvent.VK_H);
         mnuHelp.getAccessibleContext().setAccessibleDescription("Help");
+        mnuHelp.addActionListener(this);
         helpMenu.add(mnuHelp);
 
 
         // About Menu Item
         mnuAbout = new JMenuItem("About");
         mnuAbout.getAccessibleContext().setAccessibleDescription("About");
+        mnuAbout.addActionListener(this);
         helpMenu.add(mnuAbout);
 
 
@@ -214,38 +238,12 @@ public class GuiApplication {
 
 
     /**
-     * Open or Save file dialog
+     * Save file dialog
      *
-     * @param isSaveDialog True for a save dialog, false for an open dialog
      * @param parentWindow The window that is calling this method
+     * @param editorWindow is the editor area JTextPane object
      * @return The file and path selected in the dialog
     */
-//    private boolean fileDialog(boolean isSaveDialog, JFrame parentWindow) {
-//
-////        JFileChooser chooser = new JFileChooser();
-////        boolean fileChosen = false;
-////        int result;
-////
-////        // Is it a save or open
-////        if (isSaveDialog) {
-////            result = chooser.showSaveDialog(parentWindow);
-////        } else {
-////            result = chooser.showOpenDialog(parentWindow);
-////        }
-////
-////        // Set file and pathname
-////        if (result == JFileChooser.APPROVE_OPTION) {
-////
-////            fileName = chooser.getSelectedFile().getName();
-////            filePath = chooser.getSelectedFile().getPath();
-////
-////            if result  =
-////        }
-////        //TODO: This will call classes to handle opening new file or saving
-////        return fileChosen;
-//    }
-
-
     private boolean saveDialog(JFrame parentWindow, JTextPane editorWindow) {
         JFileChooser chooser = new JFileChooser();
 
@@ -257,28 +255,74 @@ public class GuiApplication {
             fileName = chooser.getSelectedFile().getName();
             filePath = chooser.getSelectedFile().getPath();
             FileIO out = new FileIO();
-            out.WriteFile(fileName, filePath, fileData);
+            out.WriteFile(filePath, fileData);
         }
 
         return true;  // TODO: Return based on what happens
     }
 
 
+    private String openDialog(JFrame parentWindow) {
+        JFileChooser chooser = new JFileChooser();
+        String data = "";
+        int result = chooser.showOpenDialog(parentWindow);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            fileName = chooser.getSelectedFile().getName();
+            filePath = chooser.getSelectedFile().getPath();
+            FileIO in = new FileIO();
+            data = in.ReadFile(filePath);
+        }
+
+        return data;
+    }
+
 
 
     private void printDialog(JTextPane editorWindow) {
 
-        // TODO: Clean up the error handling
         try {
             boolean tr = editorWindow.print();
         } catch (Exception pex){
-
+            JOptionPane.showMessageDialog(app, "Print Error");
         }
 
     }
 
 
+    private void aboutDialog(JFrame parentWindow) {
+        String msg = "Text Editor\nVersion: 1.0\n";
+        msg += "Author: Alison Butcher\n\n";
+        msg += "A project for 1801ICT Programming Languages\n";
 
+        JOptionPane.showMessageDialog(parentWindow, msg);
+    }
+
+
+    // Handles events from menu
+    public void actionPerformed(ActionEvent e) {
+        JOptionPane.showMessageDialog(app, e.getActionCommand());
+        switch (e.getActionCommand()) {
+            case "Open":
+                editor.setText(openDialog(app));
+                break;
+            case "Save":
+                saveDialog(app, editor);
+                break;
+            case "Print":
+                printDialog(editor);
+                break;
+            case "Quit":
+                System.exit(0);
+                break;
+            case "About":
+                aboutDialog(app);
+                break;
+            default:
+                break;
+
+        }
+    }
 
 
 
