@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.*;
 
-public class GuiApplication implements ActionListener{
+public class GuiApplication implements ActionListener, ItemListener{
 
     /**
      * Title of the text editor
@@ -19,6 +19,9 @@ public class GuiApplication implements ActionListener{
      */
     private JFrame app;
 
+    /**
+     * Main text editor area
+     */
     private JTextPane editor;
 
 
@@ -29,10 +32,13 @@ public class GuiApplication implements ActionListener{
 
 
     /**
-     *  filePath contains the location of the current file
+     *  filePath contains the location and name of the current file
      */
     private String filePath;
 
+    /**
+     * fileName contains the name of the current file
+     */
     private String fileData;
 
 
@@ -48,6 +54,7 @@ public class GuiApplication implements ActionListener{
         editor = new JTextPane();
         editor.setContentType("text/plain");
         editor.setDocument(new DefaultStyledDocument());
+        editor.setFont(new Font("Unifont", Font.PLAIN, 16));
 
         // Scrolling Pane
         JScrollPane editorScrollPane = new JScrollPane(editor);
@@ -67,23 +74,10 @@ public class GuiApplication implements ActionListener{
         // Display
         app.setVisible(true);
 
-        editor.setText("This is a test of the print function");
+        editor.setText("This is a test of the print function");// + (char) 9226 + (char) 9229 + (char) 9248 + (char) 8677);
 
-//      // TODO: Listener for Print
-//      printDialog(editor);
-
-        // TODO: Listener for Open
-//        String k = openDialog(app);
-//        if (k != "") {
-//            editor.setText(k);
-//        }
-
-        // TODO: Listener for Save
-//        saveDialog(app, editor);
-
-        // TODO: Listener for About
-//        aboutDialog(app);
-
+        Functions d = new Functions();
+        editor.setText(d.showUnicode("This is a test of the\tprint function" + System.lineSeparator()));
     }
 
 
@@ -140,7 +134,6 @@ public class GuiApplication implements ActionListener{
 
 
         // Open Menu Item
-        //        mnuOpen = new JMenuItem("Open", KeyEvent.VK_O);
         mnuOpen = new JMenuItem("Open", KeyEvent.VK_O);
         mnuOpen.getAccessibleContext().setAccessibleDescription("Open a new file");
         mnuOpen.addActionListener(this);
@@ -148,10 +141,10 @@ public class GuiApplication implements ActionListener{
 
 
         // Close Menu Item
-//        mnuClose = new JMenuItem("Close", KeyEvent.VK_W);
-//        mnuClose.getAccessibleContext().setAccessibleDescription("Close the file");
-//        mnuClose.addActionListener(this);
-//        fileMenu.add(mnuClose);
+        mnuClose = new JMenuItem("Close", KeyEvent.VK_W);
+        mnuClose.getAccessibleContext().setAccessibleDescription("Close the file");
+        mnuClose.addActionListener(this);
+        fileMenu.add(mnuClose);
 
 
         // Save Menu Item
@@ -200,12 +193,11 @@ public class GuiApplication implements ActionListener{
         editMenu.add(mnuSearch);
 
 
-        // Show / Hide Symbols
-        mnuShowSymbols = new JMenuItem("Show/Hide Symbols", KeyEvent.VK_G);
+        mnuShowSymbols = new JCheckBoxMenuItem("Show/Hide Symbols");
+        mnuShowSymbols.setMnemonic(KeyEvent.VK_G);
         mnuShowSymbols.getAccessibleContext().setAccessibleDescription("Show/Hide Symbols");
-        mnuShowSymbols.addActionListener(this);
+        mnuShowSymbols.addItemListener(this);
         viewMenu.add(mnuShowSymbols);
-
 
         // Help Menu Item
         mnuHelp = new JMenuItem("Help", KeyEvent.VK_H);
@@ -261,7 +253,11 @@ public class GuiApplication implements ActionListener{
         return true;  // TODO: Return based on what happens
     }
 
-
+    /**
+     * Provides an Open file Dialog
+     * @param parentWindow is the main application window
+     * @return String representing entire contents of file
+     */
     private String openDialog(JFrame parentWindow) {
         JFileChooser chooser = new JFileChooser();
         String data = "";
@@ -298,12 +294,21 @@ public class GuiApplication implements ActionListener{
         JOptionPane.showMessageDialog(parentWindow, msg);
     }
 
+    // Handles events for show / hide symbols
+    public void itemStateChanged(ItemEvent e) {
+        Functions u = new Functions();
+
+        if (e.getStateChange() == 2) {
+            editor.setText(u.hideUnicode(editor.getText()));
+        } else {
+            editor.setText(u.showUnicode(editor.getText()));
+        }
+    }
 
     // Handles events from menu
     public void actionPerformed(ActionEvent e) {
-        JOptionPane.showMessageDialog(app, e.getActionCommand());
         switch (e.getActionCommand()) {
-            case "Open":
+            case"Open":
                 editor.setText(openDialog(app));
                 break;
             case "Save":
@@ -314,6 +319,9 @@ public class GuiApplication implements ActionListener{
                 break;
             case "Quit":
                 System.exit(0);
+                break;
+            case "Close":
+                editor.setText("");
                 break;
             case "About":
                 aboutDialog(app);
